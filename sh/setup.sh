@@ -2,6 +2,7 @@
 
 source common.sh
 
+source apply-template.sh
 source backup-mysql.sh
 source backup-www.sh
 source initialize-apache.sh

@@ -2,10 +2,10 @@
 
 source common.sh
 
-cd $WEB_ROOT
+cd $APACHE_DIR
 
 TIME=$(date +"%Y%m%d%H%M")
-FILE_NAME="$TIME-www-backup.zip"
+FILE_NAME="$TIME-apache2-backup.zip"
 
 zip -r "$FILE_NAME" .
 

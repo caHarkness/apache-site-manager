@@ -24,9 +24,10 @@ do
 
         echo "$PORT live-$BASE_NAME $d" >> sites.list
 
-        echo "https://$MACHINE_NAME:$PORT/" > "$d/var/CURRENT_APPLICATION_LINK"
-        echo "$MACHINE_NAME"                > "$d/var/CURRENT_APPLICATION_MACHINE_NAME"
-        echo "$PORT"                        > "$d/var/CURRENT_APPLICATION_PORT"
+        # Create text files that PHP can read into constants for these values
+        echo "https://$MACHINE_NAME:$PORT/" > "$d/var/APP_LINK"
+        echo "$MACHINE_NAME"                > "$d/var/APP_HOST"
+        echo "$PORT"                        > "$d/var/APP_PORT"
         
         # If the .port file doesn't exist, increment the port number
         if [[ ! -e "$d/.port" ]];
@@ -44,9 +45,10 @@ do
         
         echo "$PORT_CRAWL dev-$BASE_NAME $d" >> sites.list
 
-        echo "https://$MACHINE_NAME:$PORT_CRAWL/"   > "$d/var/CURRENT_APPLICATION_LINK"
-        echo "$MACHINE_NAME"                        > "$d/var/CURRENT_APPLICATION_MACHINE_NAME"
-        echo "$PORT_CRAWL"                          > "$d/var/CURRENT_APPLICATION_PORT"
+        # Create text files that PHP can read into constants for these values
+        echo "https://$MACHINE_NAME:$PORT_CRAWL/"   > "$d/var/APP_LINK"
+        echo "$MACHINE_NAME"                        > "$d/var/APP_HOST"
+        echo "$PORT_CRAWL"                          > "$d/var/APP_PORT"
 
         PORT_CRAWL=$((PORT_CRAWL+1))
     fi

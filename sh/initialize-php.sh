@@ -1,20 +1,11 @@
 #!/bin/bash
 
 source common.sh
-warn_user "Initialize PHP"
 
-if [[ $DO_SCRIPT -eq 1 ]];
-then
+rm -rf $PHP_INI
+cp "$WEB_ROOT/sh/conf/php.ini" $PHP_INI
 
-    cd $PHP_DIR
+chown www-data:www-data $PHP_INI
+chmod 0755 $PHP_INI
 
-    rm -rf php.ini
-
-    cp "$WEB_ROOT/sh/conf/php.ini" .
-
-    chown -R www-data:www-data $PHP_DIR
-    chmod -R 0755 $PHP_DIR
-
-    go_back
-
-fi
+go_back

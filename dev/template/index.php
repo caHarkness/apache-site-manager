@@ -54,8 +54,6 @@
             // Finalize the configuration again. It's safe to do.
             Config::finalize();
         }
-
-        public static $strAccessLogGuid = null;
     }
 
     Application::loadLibraries();
@@ -93,7 +91,7 @@
     <body>
         <!-- Navigation -->
         <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
-            <span class="navbar-brand" id="nav-title"><?= APPLICATION_NAME; ?></span>
+            <span class="navbar-brand" id="nav-title"><?= APP_NAME; ?></span>
 
             <div class="collapse navbar-collapse" id="menu">
                 <ul class="navbar-nav">

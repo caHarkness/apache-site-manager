@@ -5,7 +5,7 @@
 
     <div class="col-lg-10 col-margin">
         <div class="jumbotron">
-            <h1 class="display-4"><?= APPLICATION_NAME; ?></h1>
+            <h1 class="display-4"><?= APP_NAME; ?></h1>
             
             <?php if (file_exists("ABOUT.txt")): ?>
                 <p class="lead"><?= file_get_contents("ABOUT.txt"); ?></p>

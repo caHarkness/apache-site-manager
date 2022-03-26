@@ -13,7 +13,7 @@ export LIVE_DIR="/var/www/live"
 export APACHE_DIR="/etc/apache2"
 
 # Where the php.ini file resides
-export PHP_DIR="/etc/php/7.4/apache2"
+export PHP_INI="/etc/php/7.4/apache2/php.ini"
 
 # The host name you would use in the address bar
 export MACHINE_NAME="localhost"

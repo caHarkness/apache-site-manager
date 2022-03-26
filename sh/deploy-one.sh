@@ -23,19 +23,10 @@ then
     exit 0
 fi
 
-warn_user "Deploy project named $PROJECT_NAME"
+cd $WEB_ROOT
 
-if [[ $DO_SCRIPT -eq 1 ]];
-then
+rm -rfv live/$PROJECT_NAME
+cp -rfva dev/$PROJECT_NAME live
 
-    cd $WEB_ROOT
-
-    rm -rfv live/$PROJECT_NAME
-    cp -rfva dev/$PROJECT_NAME live
-
-    update_permissions
-    go_back
-
-fi
-
+update_permissions
 go_back

@@ -13,10 +13,16 @@ export LIVE_DIR="/var/www/live"
 export APACHE_DIR="/etc/apache2"
 
 # Where the php.ini file resides
-export PHP_INI="/etc/php/7.4/apache2/php.ini"
+export PHP_DIR="/etc/php"
+
+# Where the php.ini file resides
+export PHP_INI="$PHP_DIR/7.4/apache2/php.ini"
+
+# Where the OpenSSL files live
+export SSL_DIR="/etc/ssl"
 
 # The host name you would use in the address bar
-export MACHINE_NAME="localhost"
+export MACHINE_NAME="hostname.website.com"
 
 # The user for backing up MySQL databases
 export MYSQL_USER="root"

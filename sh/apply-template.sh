@@ -13,10 +13,20 @@ do
         continue
     fi
 
+    if [[ -e "$d/.pass" ]];
+    then
+        continue
+    fi
+
     if [[ -d "$d" ]];
     then
         rsync -av \
-            --exclude="*/.skip" \
+            --exclude="*.skip" \
+            template/.[^.]* \
+            "$d/"
+
+        rsync -av \
+            --exclude="*.skip" \
             template/* \
             "$d/"
     fi

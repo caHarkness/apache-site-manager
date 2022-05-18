@@ -69,6 +69,16 @@ go_back () {
 update_permissions () {
     chmod -R 0755 "$WEB_ROOT"
     chown -R www-data:www-data "$WEB_ROOT"
+
+    chmod -R 0755 "$APACHE_DIR"
+    chown -R www-data:www-data "$APACHE_DIR"
+
+    chmod -R 0755 "$SSL_DIR"
+    chown -R www-data:www-data "$SSL_DIR"
+
+    chmod -R 0755 "$PHP_DIR"
+    chown -R www-data:www-data "$PHP_DIR"
 }
 
 go_back
+update_permissions

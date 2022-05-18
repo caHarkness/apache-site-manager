@@ -4,27 +4,60 @@
         public static $strSuccess = "";
         public static $strWarning = "";
         public static $strDanger = "";
+        public static $strInfo = "";
 
         public static function js()
         {
             ?>
                 <script>
+                    $(function() {
+                        $("#alert-container").hide();
+
+                        toastr.options =
+                        {
+                            "closeButton":          false,
+                            "debug":                false,
+                            "newestOnTop":          true,
+                            "progressBar":          true,
+                            "positionClass":        "toast-bottom-left",
+                            "preventDuplicates":    false,
+                            "onclick":              null,
+                            "showDuration":         "300",
+                            "hideDuration":         "1000",
+                            "timeOut":              "5000",
+                            "extendedTimeOut":      "1000",
+                            "showEasing":           "swing",
+                            "hideEasing":           "linear",
+                            "showMethod":           "fadeIn",
+                            "hideMethod":           "fadeOut"
+                        };
+                    });
+
+                    fncAlertPersist = function()
+                    {
+                        toastr["options"]["timeOut"]            = 1000 * 60 * 5;
+                        toastr["options"]["extendedTimeOut"]    = 1000 * 60 * 5;
+                    };
+
                     fncAlertSuccess = function(strMessage)
                     {
-                        // Replace this with something more clever to show the user a successful message.
-                        console.log("Success: " + strMessage);
+                        toastr["success"](strMessage);
                     };
 
                     fncAlertWarning = function(strMessage)
                     {
-                        // Replace this with something more clever to show the user a message as a warning.
-                        console.log("Warning: " + strMessage);
+                        toastr["warning"](strMessage);
                     };
 
                     fncAlertDanger = function(strMessage)
                     {
-                        // Replace this with something more clever to show the user an error message.
-                        console.log("Danger: " + strMessage);
+                        toastr["error"](strMessage);
+                    };
+
+                    fncAlertInfo = function(strMessage)
+                    {
+                        fncAlertPersist();
+                        toastr["info"](strMessage);
                     };
                 </script>
             <?php
@@ -57,6 +90,15 @@
                 $strMessage);
         }
 
+        public static function info($strMessage)
+        {
+            Alert::$strInfo = $strMessage;
+            
+            Cookies::set(
+                "AlertInfo",
+                $strMessage);
+        }
+
         public static function eat()
         {
             if (Cookies::has("AlertSuccess"))
@@ -67,6 +109,9 @@
 
             if (Cookies::has("AlertDanger"))
                 Alert::$strDanger = Cookies::pop("AlertDanger") ?? "";
+
+            if (Cookies::has("AlertInfo"))
+                Alert::$strInfo = Cookies::pop("AlertInfo") ?? "";
         }
 
         public static function render()
@@ -99,6 +144,17 @@
                     <script>
                         $(function() {
                             fncAlertDanger("<?= Alert::$strDanger; ?>");
+                        });
+                    </script>
+                <?php
+            }
+
+            if (strlen(Alert::$strInfo) > 0)
+            {
+                ?>
+                    <script>
+                        $(function() {
+                            fncAlertInfo("<?= Alert::$strInfo; ?>");
                         });
                     </script>
                 <?php

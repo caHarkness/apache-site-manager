@@ -10,15 +10,26 @@ fi
 
 while read LINE;
 do
-
-    DATA="$(<conf/template-ssl.conf)"
-
     IFS=" "
     set - $LINE
     SERVER_PORT=$1
     SERVER_NAME=$2
     DOCUMENT_ROOT=$3
-    
+    SECURITY_REQ=$4
+
+    TEMPLATE_FILE="template-ssl.conf"
+
+    if [[ "$SECURITY_REQ" == "none" ]]
+    then
+        TEMPLATE_FILE="template.conf"
+    fi
+
+    if [[ "$SECURITY_REQ" == "auth" ]]
+    then
+        TEMPLATE_FILE="template-ssl-auth.conf"
+    fi
+
+    DATA="$(<conf/$TEMPLATE_FILE)"
     DATA=${DATA//__SERVER_PORT__/$SERVER_PORT}
     DATA=${DATA//__SERVER_NAME__/$SERVER_NAME}
     DATA=${DATA//__DOCUMENT_ROOT__/$DOCUMENT_ROOT}
@@ -35,5 +46,4 @@ do
 done < sites.list
 
 go_back
-
 service apache2 restart

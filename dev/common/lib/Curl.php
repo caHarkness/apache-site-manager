@@ -19,11 +19,30 @@
             return $strOutput;
         }
 
+        private static function _async($strAddress)
+        {
+            try
+            {
+                exec("curl -k \"$strAddress\" > /dev/null 2>/dev/null &");
+                return true;
+            }
+            catch (Exception $x) {}
+            return false;
+        }
+
         public static function trim($strPart)
         {
             $strPart = trim($strPart);
             $strPart = trim($strPart, "/");
             return $strPart;
+        }
+
+        public static function fix($strUri)
+        {
+            while (strpos($strUri, "//"))
+                $strUri = str_replace("//", "/", $strUri);
+
+            return $strUri;
         }
 
         public static function get(...$varArgs)
@@ -37,11 +56,30 @@
                     $strUri .= trim($strArg) . "/";
             }
 
-            $strUri =
-                Curl::trim($strUri);
+            $strUri = self::trim($strUri);
+            $strUri = self::fix($strUri);
+            $strResponse = self::_internal($strUri);
             
             return
-            Curl::_internal($strUri);
+            $strResponse;
+        }
+
+        public static function getAsync(...$varArgs)
+        {
+            $strUri = "";
+            $varArgs = Tools::flatten($varArgs);
+
+            foreach ($varArgs as $strArg)
+            {
+                if (is_string($strArg))
+                    $strUri .= trim($strArg) . "/";
+            }
+
+            $strUri = self::trim($strUri);
+            $strUri = self::fix($strUri);
+            
+            return
+            self::_async($strUri);
         }
     }
 ?>

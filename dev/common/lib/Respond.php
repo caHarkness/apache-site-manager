@@ -14,14 +14,15 @@
 
         public static function status($intCode, $strReason)
         {
-            $intCode = intval($intCode);
+            self::init();
 
+            $intCode = intval($intCode);
             ob_clean();
 
             header(trim("HTTP/1.0 {$intCode} {$strReason}"));
             header("Content-Type: text/plain");
             echo "{$intCode} {$strReason}";
-            
+
             ob_end_flush();
             exit;
         }
@@ -31,14 +32,19 @@
             ob_clean();
             header("Content-Type: text/plain");
 
-            echo json_encode(
+            $varHelper =
                 array(
-                    "error"         => $x->getMessage(),
-                    "error_code"    => $x->getCode(),
-                    "error_file"    => $x->getFile(),
-                    "error_line"    => $x->getLine(),
-                    "path"          => Request::getPath()),
-                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+                    "error" => $x->getMessage(),
+                    "error_code" => $x->getCode(),
+                    "error_file" => $x->getFile(),
+                    "error_line" => $x->getLine(),
+                    "path" => Request::getPath());
+
+            $strFormatted           = json_encode($varHelper, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+            $strNotFormatted        = json_encode($varHelper, JSON_UNESCAPED_SLASHES);
+            $strExceptionMessage    = $x->getMessage();
+
+            echo $strFormatted;
 
             ob_end_flush();
             exit;
@@ -47,11 +53,10 @@
         public static function text($varInput)
         {
             ob_clean();
-
             Respond::commonHeaders();
             header("Content-Type: text/plain");
-            echo $varInput;
 
+            echo $varInput;
             ob_end_flush();
             exit;
         }
@@ -59,11 +64,11 @@
         public static function json($varInput)
         {
             ob_clean();
-
             Respond::commonHeaders();
             header("Content-Type: application/json");
-            echo json_encode($varInput, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+            $strOutput = trim(json_encode($varInput, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE));
 
+            echo $strOutput;
             ob_end_flush();
             exit;
         }
@@ -72,7 +77,7 @@
         {
             ob_clean();
 
-            if (func_num_args() === 3)
+            if (func_num_args() > 2)
             {
                 Cookies::set(
                     func_get_arg(1),
@@ -99,12 +104,12 @@
             $varPathParts    = explode("/", $strPath);
             $strLastPathPart = $varPathParts[count($varPathParts) - 1];
             $strFileName     = $strLastPathPart;
+            $strContentType  = mime_content_type($strPath);
 
             ob_clean();
             Respond::commonHeaders();
-            header("Content-Type: " . mime_content_type($strPath));
+            header("Content-Type: $strContentType");
             header("Content-Disposition: attachment; filename={$strFileName}");
-            
             define("CHUNK_SIZE", 1024 * 1024);
 
             $varBuffer = "";
@@ -130,11 +135,10 @@
 
         public static function download($strPath)
         {
-
             ob_clean();
-
             Respond::commonHeaders();
             header("Content-Type: application/force-download");
+
             echo file_get_contents($strPath);
 
             ob_end_flush();

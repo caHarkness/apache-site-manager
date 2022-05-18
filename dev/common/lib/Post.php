@@ -21,6 +21,16 @@
             return false;
         }
 
+        public static function size()
+        {
+            $intSize = -1;
+
+            if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] == "POST")
+                $intSize = $_SERVER["CONTENT_LENGTH"];
+
+            return $intSize;
+        }
+
         public static function value($strField)
         {
             if (isset($_POST[$strField]))

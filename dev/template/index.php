@@ -15,56 +15,91 @@
 
     class Application
     {
+        // Get the relative path of all files matching the regular expression
+        public static function filesIn($strDirectory, $strRegex)
+        {
+            $arrDirectory   = scandir($strDirectory);
+            unset($arrDirectory[0]);
+            unset($arrDirectory[1]);
+            $arrDirectory   = array_values($arrDirectory);
+            $arrOutput      = array();
+
+            foreach ($arrDirectory as $strFile)
+                if (preg_match($strRegex, $strFile))
+                    array_push($arrOutput, array("$strFile", "$strDirectory/$strFile"));
+
+            return
+            $arrOutput;
+        }
+
+        public static function requireExisting($strFilePath)
+        {
+            if (file_exists($strFilePath))
+                require $strFilePath;
+        }
+
         // WARNING:
         // Be mindful of the PHP scripts placed in the 'lib' folder; all of them are executed.
         static function loadLibraries()
         {
-            $varDirectory = scandir("lib");
-            unset($varDirectory[0]);
-            unset($varDirectory[1]);
-            $varDirectory = array_values($varDirectory);
+            $arrPaths = self::filesIn("lib", "#[A-Za-z0-9_\-]*.php#");
 
-            foreach ($varDirectory as $strFile)
-                if (preg_match("#[A-Za-z0-9_\-]*.php#", $strFile))
-                {
-                    if (!(in_array($strFile, Config::getLoadedLibraries())))
-                        require "lib/$strFile";
-                }
+            foreach ($arrPaths as $arrPath)
+                if (!(in_array($arrPath[0], Config::getLoadedLibraries())))
+                    require $arrPath[1];
         }
 
         // Load the contents of the files found in 'var' and set them as a constant. We will only be looking for files named in all capital letters only.
         static function loadFileConstants()
         {
-            $varDirectory = scandir("var");
-            unset($varDirectory[0]);
-            unset($varDirectory[1]);
-            $varDirectory = array_values($varDirectory);
+            $arrPaths = self::filesIn("var", "/^[A-Z0-9_]*/");
 
-            foreach ($varDirectory as $strFile)
-                if (preg_match("/^[A-Z0-9_]*/", $strFile))
+            foreach ($arrPaths as $arrPath)
+                try
                 {
-                    try
-                    {
-                        //define($strFile, trim(file_get_contents("var/$strFile")));
-                        Config::$value["$strFile"] = trim(file_get_contents("var/$strFile"));
-                    }
-                    catch (Exception $x) {}
+                    Config::$value[$arrPath[0]] = trim(file_get_contents($arrPath[1]));
                 }
+                catch (Exception $x) {}
 
             // Finalize the configuration again. It's safe to do.
             Config::finalize();
         }
+
+        public static $strInstanceId;
+        public static $varStopwatch;
+
+        // Called right before the output buffer begins being written to.
+        static function start()
+        {
+            self::loadLibraries();
+            self::loadFileConstants();
+
+            self::$strInstanceId    = Text::generateGuid();
+            self::$varStopwatch     = new Stopwatch();
+
+            define("APP_INSTANCE_ID", self::$strInstanceId);
+
+            // Start the output buffer process and clean it.
+            ob_start();
+            ob_clean();
+
+            // Load cookies into a static field. We can't modify cookies directly until we are ready to send them along with the output buffer, so the solution to this is to modify a static field of the Cookies class.
+            Cookies::load();
+        }
+
+        // Called after the output buffer is finished being written to and when the application is ready to flush the contents to the client.
+        static function end()
+        {
+            // Finalize the cookies for sending as header information.
+            Cookies::finalize();
+
+            // Send the contents of the output buffer to the client requesting the page or resource. Exit after doing so!
+            ob_end_flush();
+            exit;
+        }
     }
 
-    Application::loadLibraries();
-    Application::loadFileConstants();
-
-    // Start the output buffer process and clean it.
-    ob_start();
-    ob_clean();
-
-    // Load cookies into a static field. We can't modify cookies directly until we are ready to send them along with the output buffer, so the solution to this is to modify a static field of the Cookies class.
-    Cookies::load();
+    Application::start();
 ?>
 
 <!DOCTYPE html>
@@ -77,61 +112,91 @@
         <!-- CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
         
         <!-- Internal CSS --->
-        <link rel="stylesheet" href="/css/margin.css">
-        <link rel="stylesheet" href="/css/padding.css">
+        <?php foreach (Application::filesIn("css", "#[A-Za-z0-9_\-\.]*.css#") as $f): ?>
+            <link rel="stylesheet" href="/<?= $f[1]; ?>">
+        <?php endforeach; ?>
 
         <!-- Afar JavaScript libraries -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+        <!-- Local JavaScript libraries -->
+        <?php foreach (Application::filesIn("js", "#[A-Za-z0-9_\-\.]*.js#") as $f): ?>
+            <script src="/<?= $f[1]; ?>"></script>
+        <?php endforeach; ?>
+
+        <!-- Application-specific additional header -->
+        <?php Application::requireExisting("head.php"); ?>
     </head>
 
     <body>
-        <!-- Navigation -->
-        <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
-            <span class="navbar-brand" id="nav-title"><?= APP_NAME; ?></span>
+        <div id="app-header">
+            <!-- Navigation -->
+            <nav class="navbar navbar-expand-sm navbar-dark bg-dark justify-content-between" id="nav-main">
+                <div>
+                    <ul class="navbar-nav">
+                        <li class="navbar-brand" id="nav-title"><?= APP_NAME; ?></li>
+                        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
 
-            <div class="collapse navbar-collapse" id="menu">
+                        <!-- App Specific Links -->
+                        <?php Application::requireExisting("menu.php"); ?>
+
+                        <?php if (is_dir("md")): ?>
+                            <li class="nav-item"><a class="nav-link" href="/doc">Docs</a></li>
+                        <?php endif; ?>
+                    </ul> 
+                </div>
+
                 <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-
-                    <!-- App Specific Links -->
-                    <?php if (file_exists("menu.php")): ?>
-                        <?php require "menu.php"; ?>
-                    <?php endif;?>
+                    <?php if (IS_DEV): ?>
+                        <li class="navbar-brand">(dev)</li>
+                    <?php endif; ?>
                 </ul>
+            </nav>
+        </div>
+
+        <div id="app-body">
+            <?php
+                Request::process();
+                if (in_array("@partial", Request::getPath()))
+                    ob_clean();
+            ?>
+
+            <!-- Rendered view -->
+            <?php Request::render(); ?>
+
+            <?php
+                if (in_array("@partial", Request::getPath()))
+                {
+                    ob_end_flush();
+                    exit;
+                }
+            ?>
+        </div>
+        
+        <!-- Div containing all footer information (for hiding and printing purposes) -->
+        <div id="app-footer">
+            <hr />
+
+            <!-- Project footer -->
+            <?php Application::requireExisting("footer.php"); ?>
+
+            <!-- Global footer -->
+            <div class="row">
+                <div class="col-lg-1"></div>
+
+                <div class="col-lg-10">
+                    <p><small>Copyright &copy; 2022 Company. This software is proprietary and internal to Company. Do not distribute the information you see on this page.</small></p>
+                </div>
+
+                <div class="col-lg-1"></div>
             </div>
-
-            <span class="navbar-brand" id="nav-subtitle">
-                <?= IS_DEV? "(dev)": ""; ?>
-            </span>
-
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#menu">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-        </nav>
-
-        <!-- Rendered view -->
-        <?php Request::process(); ?>
-
-        <hr />
-
-        <!-- Project footer -->
-        <?php if (file_exists("footer.php")): ?>
-            <?php require "footer.php"; ?>
-        <?php endif; ?>
-
-        <!-- Global footer -->
-        <div class="row">
-            <div class="col-lg-1"></div>
-
-            <div class="col-lg-10">
-                <p><small>Copyright &copy; 2022 Your Company.</small></p>
-            </div>
-
-            <div class="col-lg-1"></div>
         </div>
 
         <!-- Extra JavaScript -->
@@ -148,14 +213,13 @@
                     $("#nav-title").html(title);
             });
         </script>
+
+        <?php PageRefresher::js(); ?>
     </body>
+
+    <!-- I <33 sleepy -->
 </html>
 
 <?php
-    // Finalize the cookies for sending as header information.
-    Cookies::finalize();
-
-    // Send the contents of the output buffer to the client requesting the page or resource. Exit after doing so!
-    ob_end_flush();
-    exit;
+    Application::end();
 ?>

@@ -5,32 +5,32 @@
 
         public static function load()
         {
-            Cookies::$arr = array();
+            self::$arr = array();
 
             try
             {
                 if (isset($_COOKIE) && $_COOKIE != null)
                     if (isset($_COOKIE["Persistent"]))
-                        Cookies::$arr = json_decode($_COOKIE["Persistent"], true);
+                        self::$arr = json_decode($_COOKIE["Persistent"], true);
             }
             catch (Exception $x) {}
         }
 
         public static function get($strKey)
         {
-            if (Cookies::has($strKey))
-                return Cookies::$arr[$strKey];
+            if (self::has($strKey))
+                return self::$arr[$strKey];
             else
             return null;
         }
 
         public static function has($strKey)
         {
-            if (Cookies::$arr == null)
-                Cookies::$arr = array();
+            if (self::$arr == null)
+                self::$arr = array();
 
-            if (isset(Cookies::$arr[$strKey]))
-                if (strlen(Cookies::$arr[$strKey]) > 0)
+            if (isset(self::$arr[$strKey]))
+                if (strlen(self::$arr[$strKey]) > 0)
                     return true;
 
             return false;
@@ -38,25 +38,25 @@
 
         public static function pop($strKey)
         {
-            $val = Cookies::get($strKey);
-            Cookies::unset($strKey);
+            $val = self::get($strKey);
+            self::unset($strKey);
             return $val;
         }
 
         public static function set($strKey, $strValue)
         {
-            if (Cookies::$arr == null)
-                Cookies::$arr = array();
+            if (self::$arr == null)
+                self::$arr = array();
 
-            Cookies::$arr[$strKey] = $strValue;
+            self::$arr[$strKey] = $strValue;
         }
 
         public static function unset($strKey)
         {
-            if (Cookies::has($strKey))
+            if (self::has($strKey))
             {
-                Cookies::$arr[$strKey] = null;
-                unset(Cookies::$arr[$strKey]);
+                self::$arr[$strKey] = null;
+                unset(self::$arr[$strKey]);
             }
         }
 
@@ -64,7 +64,7 @@
         {
             setcookie(
                 "Persistent",
-                json_encode(Cookies::$arr, JSON_UNESCAPED_SLASHES),
+                json_encode(self::$arr, JSON_UNESCAPED_SLASHES),
                 time() + 60 * 60 * 24 * 30,
                 "/");
         }

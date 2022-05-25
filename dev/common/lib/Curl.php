@@ -3,9 +3,8 @@
     {
         private static function _internal($strAddress)
         {
-            $strOutput = "";
-
-            $varCurl = curl_init($strAddress);
+            $strOutput  = "";
+            $varCurl    = curl_init($strAddress);
 
             curl_setopt($varCurl, CURLOPT_URL, $strAddress);
             curl_setopt($varCurl, CURLOPT_HEADER, 0);
@@ -56,9 +55,9 @@
                     $strUri .= trim($strArg) . "/";
             }
 
-            $strUri = self::trim($strUri);
-            $strUri = self::fix($strUri);
-            $strResponse = self::_internal($strUri);
+            $strUri         = self::trim($strUri);
+            $strUri         = self::fix($strUri);
+            $strResponse    = self::_internal($strUri);
             
             return
             $strResponse;

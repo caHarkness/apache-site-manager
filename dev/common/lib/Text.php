@@ -76,12 +76,14 @@
         public static function join(...$varParts)
         {
             $strOutput = "";
+
             foreach ($varParts as $p)
-            try
-            {
-                $strOutput .= $p;
-            }
-            catch (Exception $x) {}
+                try
+                {
+                    $strOutput .= $p;
+                }
+                catch (Exception $x) {}
+
             return $strOutput;
         }
     }

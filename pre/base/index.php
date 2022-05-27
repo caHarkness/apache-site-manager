@@ -5,6 +5,15 @@
     // ABOUT:
     // This file, "index.php," is responsible for handing all requests pertinent to the project. For example, let's say a request is made to https://my.site/controller/action/abc/123. This "index.php" breaks apart the request into a several bits. There is a "pages" directory in each project that houses each of the controllers. A controller can be a single .php file itself or a folder containing .php scripts as actions. Refer to the Request.php library in the "lib" directory of the "api" project. Anything after the controller and action in the address bar is stored into a string array that can be accessed via Request::getPath(). The first two elements of this array are "controller" and "action." Strings "abc" and "123" are represented as elements whose indecies are 2 and 3 of this array.
 
+    if (!(isset($_SERVER["HTTPS"]) && ($_SERVER["HTTPS"] == "on" || $_SERVER["HTTPS"] == 1 )))
+    {
+        $strServer      = $_SERVER["HTTP_HOST"];
+        $strUri         = $_SERVER["REQUEST_URI"];
+        $strLocation    = "https://{$strServer}{$strUri}";
+        header("Location: $strLocation");
+        exit;
+    }
+
     // Load the configuration of the entire application before anything else! The order implies that the master configuration file is loaded and the project-level configuration offers any overrides.
 
     require "../../config.php";     // The configuration in "/var/www"

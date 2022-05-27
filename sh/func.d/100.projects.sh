@@ -30,88 +30,120 @@ project-index () {
     rm sh/gen/sites.list
     touch sh/gen/sites.list
 
-    PORT_CRAWL=44300
+    HTTPS_PORT_CRAWL=44300
+    HTTP_PORT_CRAWL=8000
 
+    # Index all the sites in the live folder
     for p in live/*
     do
-        if [[ -d $p && -f $p/flags/VHOST_CONFIG ]]
+        if [[ -d $p ]]
         then
             PDIR=$(basename $(dirname $p))
             PNAME=$(basename $p)
+            HTTPS_PORT=""
+            HTTP_PORT=""
 
             echo "$PDIR/$PNAME found"
             project-flags $PDIR $PNAME
 
-            if [[ "$PORT" == "" ]]
+            if [[ -f $p/flags/VHOST_HTTPS ]]
             then
-                PORT=$((PORT_CRAWL))
-                PORT_CRAWL=$((PORT_CRAWL+1))
-            fi
-
-            PROTOCOL="https"
-
-            if [[ "$VHOST_CONFIG" == "" ]]
-            then
-                VHOST_CONFIG="vhost.ssl.conf"
-
-                if [[ "$PORT" == "80" ]]
+                # Auto assign an HTTPS port for this project
+                if [[ "$HTTPS_PORT" == "" ]]
                 then
-                    VHOST_CONFIG="vhost.http.conf"
-                    PROTOCOL="http"
+                    HTTPS_PORT=$((HTTPS_PORT_CRAWL))
+                    HTTPS_PORT_CRAWL=$((HTTPS_PORT_CRAWL+1))
                 fi
+
+                LINE_PORT="$HTTPS_PORT"
+                LINE_KIND="$PDIR"
+                LINE_NAME="$PNAME"
+                LINE_PATH="$WEB_ROOT/$p"
+                LINE_VHOST_CONFIG="vhost.https.conf"
+
+                if [[ "$VHOST_HTTPS_LIVE_OVERRIDE" != "" ]]; then LINE_VHOST_CONFIG="$VHOST_HTTPS_LIVE_OVERRIDE"; fi
+
+                LINE="$LINE_PORT $LINE_KIND $LINE_NAME $LINE_PATH $LINE_VHOST_CONFIG"
+                echo "$LINE" >> sh/gen/sites.list
+                echo "$LINE"
+                echo "https://${MACHINE_NAME}:${HTTPS_PORT}"    > $p/var/APP_LINK
+                echo "https://localhost:${HTTPS_PORT}"          > $p/var/APP_LINK_LOCAL
             fi
 
-            LINE_PORT="$PORT"
-            LINE_NAME="$PDIR-$PNAME"
-            LINE_PATH="$WEB_ROOT/$p"
-            LINE_VHOST_CONFIG="$VHOST_CONFIG"
-            LINE="$LINE_PORT $LINE_NAME $LINE_PATH $LINE_VHOST_CONFIG"
+            if [[ -f $p/flags/VHOST_HTTP ]]
+            then
+                # Auto assign an HTTP port for this project
+                if [[ "$HTTP_PORT" == "" ]]
+                then
+                    HTTP_PORT=$((HTTP_PORT_CRAWL))
+                    HTTP_PORT_CRAWL=$((HTTP_PORT_CRAWL+1))
+                fi
 
-            echo "$LINE" >> sh/gen/sites.list
-            echo "$LINE"
+                LINE_PORT="$HTTP_PORT"
+                LINE_KIND="$PDIR"
+                LINE_NAME="$PNAME"
+                LINE_PATH="$WEB_ROOT/$p"
+                LINE_VHOST_CONFIG="vhost.http.conf"
 
-            LINK="${PROTOCOL}://${MACHINE_NAME}:${PORT}"
-            LINK_LOCAL="${PROTOCOL}://localhost:${PORT}"
+                if [[ "$VHOST_HTTP_LIVE_OVERRIDE" != "" ]]; then LINE_VHOST_CONFIG="$VHOST_HTTP_LIVE_OVERRIDE"; fi
 
-            echo "$LINK" > $p/var/APP_LINK
-            echo "$LINK_LOCAL" > $p/var/APP_LINK_LOCAL
+                LINE="$LINE_PORT $LINE_KIND $LINE_NAME $LINE_PATH $LINE_VHOST_CONFIG"
+                echo "$LINE" >> sh/gen/sites.list
+                echo "$LINE"
+            fi
         fi
     done
 
+    # Index all the sites in the dev folder
     for p in dev/*
     do
-        if [[ -d $p && -f $p/flags/VHOST_CONFIG ]]
+        if [[ -d $p ]]
         then
             PDIR=$(basename $(dirname $p))
             PNAME=$(basename $p)
+            HTTPS_PORT=""
+            HTTP_PORT=""
 
             echo "$PDIR/$PNAME found"
             project-flags $PDIR $PNAME
 
-            PORT=$((PORT_CRAWL))
-            PORT_CRAWL=$((PORT_CRAWL+1))
-
-            PROTOCOL="https"
-
-            if [[ "$VHOST_CONFIG" == "" ]]
+            if [[ -f $p/flags/VHOST_HTTPS ]]
             then
-                VHOST_CONFIG="vhost.ssl.conf"
+                HTTPS_PORT=$((HTTPS_PORT_CRAWL))
+                HTTPS_PORT_CRAWL=$((HTTPS_PORT_CRAWL+1))
+
+                LINE_PORT="$HTTPS_PORT"
+                LINE_KIND="$PDIR"
+                LINE_NAME="$PNAME"
+                LINE_PATH="$WEB_ROOT/$p"
+                LINE_VHOST_CONFIG="vhost.http.conf"
+
+                if [[ "$VHOST_HTTPS_DEV_OVERRIDE" != "" ]]; then LINE_VHOST_CONFIG="$VHOST_HTTPS_DEV_OVERRIDE"; fi
+
+                LINE="$LINE_PORT $LINE_KIND $LINE_NAME $LINE_PATH $LINE_VHOST_CONFIG"
+                echo "$LINE" >> sh/gen/sites.list
+                echo "$LINE"
+                echo "https://${MACHINE_NAME}:${HTTPS_PORT}"    > $p/var/APP_LINK
+                echo "https://localhost:${HTTPS_PORT}"          > $p/var/APP_LINK_LOCAL
             fi
 
-            LINE_PORT="$PORT"
-            LINE_NAME="$PDIR-$PNAME"
-            LINE_PATH="$WEB_ROOT/$p"
-            LINE_VHOST_CONFIG="$VHOST_CONFIG"
-            LINE="$LINE_PORT $LINE_NAME $LINE_PATH $LINE_VHOST_CONFIG"
+            if [[ -f $p/flags/VHOST_HTTP ]]
+            then
+                HTTP_PORT=$((HTTP_PORT_CRAWL))
+                HTTP_PORT_CRAWL=$((HTTP_PORT_CRAWL+1))
 
-            echo "$LINE" >> sh/gen/sites.list
-            echo "$LINE"
+                LINE_PORT="$HTTP_PORT"
+                LINE_KIND="$PDIR"
+                LINE_NAME="$PNAME"
+                LINE_PATH="$WEB_ROOT/$p"
+                LINE_VHOST_CONFIG="vhost.http.conf"
 
-            LINK="${PROTOCOL}://${MACHINE_NAME}:${PORT}"
-            LINK_LOCAL="${PROTOCOL}://localhost:${PORT}"
+                if [[ "$VHOST_HTTP_DEV_OVERRIDE" != "" ]]; then LINE_VHOST_CONFIG="$VHOST_HTTP_DEV_OVERRIDE"; fi
 
-            echo "$LINK" > $p/var/APP_LINK
-            echo "$LINK_LOCAL" > $p/var/APP_LINK_LOCAL
+                LINE="$LINE_PORT $LINE_KIND $LINE_NAME $LINE_PATH $LINE_VHOST_CONFIG"
+                echo "$LINE" >> sh/gen/sites.list
+                echo "$LINE"
+            fi
         fi
     done
 
@@ -186,7 +218,7 @@ project-rebase () {
 
     project-flags "dev" $1
 
-    if [[ "$DISABLE_REBASE" != "" ]]
+    if [[ -e dev/$1/flags/DISABLE_REBASE ]]
     then
         return
     fi

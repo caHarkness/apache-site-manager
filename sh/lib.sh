@@ -1,17 +1,17 @@
-source config.sh
+#!/bin/bash
 
 if [ "$EUID" -ne 0 ]
 then
     echo "This script must be ran as root."
-    exit 0
+    exit 1
 fi
 
-for s in $WEB_ROOT/sh/conf.d/*.sh
+for s in conf.d/*.sh
 do
     source $s
 done
 
-for s in $WEB_ROOT/sh/func.d/*.sh
+for s in func.d/*.sh
 do
     source $s
 done

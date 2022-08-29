@@ -1,9 +1,12 @@
-<div class="row" style="min-height: 32px;"></div>
+<?php
+    if (file_exists("default.php"))
+        require "default.php";
+?>
 
-<div class="row">
+<div class="row pt-3">
     <div class="col-lg-1"></div>
 
-    <div class="col-lg-10 col-margin">
+    <div class="col-lg-10">
         <div class="jumbotron">
             <h1 class="display-4"><?= APP_NAME; ?></h1>
             
@@ -14,6 +17,4 @@
             <?php endif; ?>
         </div>
     </div>
-
-    <div class="col-lg-1"></div>
 </div>

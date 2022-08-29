@@ -40,6 +40,9 @@ project-index () {
         then
             PDIR=$(basename $(dirname $p))
             PNAME=$(basename $p)
+
+            VHOST_HTTPS_LIVE_OVERRIDE=""
+            VHOST_HTTP_LIVE_OVERRIDE=""
             HTTPS_PORT=""
             HTTP_PORT=""
 
@@ -101,6 +104,9 @@ project-index () {
         then
             PDIR=$(basename $(dirname $p))
             PNAME=$(basename $p)
+
+            VHOST_HTTPS_DEV_OVERRIDE=""
+            VHOST_HTTP_DEV_OVERRIDE=""
             HTTPS_PORT=""
             HTTP_PORT=""
 
@@ -116,7 +122,7 @@ project-index () {
                 LINE_KIND="$PDIR"
                 LINE_NAME="$PNAME"
                 LINE_PATH="$WEB_ROOT/$p"
-                LINE_VHOST_CONFIG="vhost.http.conf"
+                LINE_VHOST_CONFIG="vhost.https.conf"
 
                 if [[ "$VHOST_HTTPS_DEV_OVERRIDE" != "" ]]; then LINE_VHOST_CONFIG="$VHOST_HTTPS_DEV_OVERRIDE"; fi
 

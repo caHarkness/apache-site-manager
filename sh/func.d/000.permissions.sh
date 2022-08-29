@@ -6,8 +6,6 @@ permissions-set () {
 }
 
 permissions-update () {
-    cd $WEB_ROOT
-
     permissions-set $WEB_ROOT
     permissions-set $APACHE_DIR
     permissions-set $PHP_DIR

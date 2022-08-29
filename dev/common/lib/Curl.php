@@ -47,7 +47,7 @@
         public static function get(...$varArgs)
         {
             $strUri = "";
-            $varArgs = Tools::flatten($varArgs);
+            $varArgs = Arrays::flatten($varArgs);
 
             foreach ($varArgs as $strArg)
             {
@@ -58,7 +58,7 @@
             $strUri         = self::trim($strUri);
             $strUri         = self::fix($strUri);
             $strResponse    = self::_internal($strUri);
-            
+
             return
             $strResponse;
         }
@@ -66,7 +66,7 @@
         public static function getAsync(...$varArgs)
         {
             $strUri = "";
-            $varArgs = Tools::flatten($varArgs);
+            $varArgs = Arrays::flatten($varArgs);
 
             foreach ($varArgs as $strArg)
             {

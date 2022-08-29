@@ -1,9 +1,16 @@
 <?php
+    /*
+        Request.php
+
+        A static class library that plays a major role in the framework. Its purpose is to break apart the request, determine which parts of the request exist as a PHP script & which are the supplied arguments of the controller action, and "require" the found PHP script.
+    */
+
     class Request
     {
         static $varPath;
         static $varPathInfo;
 
+        // Learn more about the request by breaking it apart and storing the individual, important pieces as keyed values.
         static function getPathInfo()
         {
             if (self::$varPathInfo != null)
@@ -99,9 +106,11 @@
         static function getPath()
         {
             return
+            array_filter(
             explode(
                 "/",
-                self::getPathInfo()["complete"]);
+                self::getPathInfo()["complete"]),
+            "strlen");
         }
 
         // Returns the relative path of the requested script as a string
@@ -141,9 +150,51 @@
         static function getArgs()
         {
             return
+            array_filter(
             explode(
                 "/",
-                self::getPathInfo()["args"]);
+                self::getPathInfo()["args"]),
+            "strlen");
+        }
+
+        // Safely returns a request argument by its index or null if it doesn't exist (without error)
+        static function getArg($intIndex)
+        {
+            $varArgs = self::getArgs();
+
+            if (count($varArgs) >= $intIndex + 1)
+                    return $varArgs[$intIndex];
+            else    return null;
+        }
+
+        static function hasParam($strKey)
+        {
+            if (is_array($_GET))
+            {
+                if (array_key_exists($strKey, $_GET))
+                    return true;
+            }
+
+            return false;
+        }
+
+        // Safely returns the value of a request parameter or null if not defined (without error)
+        // e.g. 12345 from getParam("id") when resource is like /users/get?id=12345
+        static function getParam($strKey)
+        {
+            if (is_array($_GET))
+            {
+                if (array_key_exists($strKey, $_GET))
+                    return $_GET[$strKey];
+            }
+
+            return null;
+        }
+
+        static function getReferer()
+        {
+            return
+            $_SERVER["HTTP_REFERER"];
         }
 
         // To be called by the template's index.php only

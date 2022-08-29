@@ -1,4 +1,14 @@
 <?php
+    /*
+        SQLiteTable.php
+
+        An object class for converting an array of key-value pairs into a SQLite table that can be queried. This class is purely for convenience and allows for further querying of information after we get data back from either SQL Server or MySQL Server.
+
+        Usage:  (new SQLiteTable($varRows))->query("select * from tbl order by cast(`Age` as INTEGER) desc");
+
+        Note:   The table name will always be "tbl" and all of its columns will always have the TEXT data type.
+    */
+
     class SQLiteTable
     {
         public $arrSet;
@@ -8,7 +18,7 @@
         function __construct($arrInput)
         {
             $this->arrSet       = $arrInput;
-            $this->strTableName = "temp";
+            $this->strTableName = "tbl";
             $this->initializePDO();
         }
 
@@ -55,9 +65,12 @@
 
         public function query($input, ...$args)
         {
+            if ($this->arrSet == null || count($this->arrSet) < 1)
+                return [];
+
             $output = array();
             $query  = $this->varPDO->prepare($input);
-            $args   = Tools::flatten($args);
+            $args   = Arrays::flatten($args);
 
             if (count($args) > 0)
                 $query->execute($args);

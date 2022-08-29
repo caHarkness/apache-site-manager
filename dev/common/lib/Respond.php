@@ -1,4 +1,9 @@
 <?php
+    /*
+        Respond.php
+
+        A static class library for handing common responses in the framework.
+    */
     class Respond
     {
         private static function commonHeaders()
@@ -14,8 +19,6 @@
 
         public static function status($intCode, $strReason)
         {
-            self::init();
-
             $intCode = intval($intCode);
             ob_clean();
 
@@ -76,6 +79,7 @@
             exit;
         }
 
+        // If at some point during the execution of our logic we need to send the user elsewhere, we can call this function to stop what we are doing, empty the response, and apply a redirect header to inform the user of their new destination. If we pass two additional arguments, we will set the cookie "argument 2" to the value of "argument 3." This is how we pass messages along to the user if we want to notify them of something that happened during their request, e.g. Respond::redirect("/", "AlertWarning", "You are not allowed to do that");
         public static function redirect($strLocation)
         {
             ob_clean();

@@ -1,11 +1,18 @@
 <?php
+    /*
+        Cookies.php
+
+        A static class library used to handle the "getting" and "setting" of cookies for cross-session communication. This library does not actually get or set standard cookies, it only reads and writes to one cookie named "Persistent" which is encoded as a JSON string when accessed.
+    */
+
     class Cookies
     {
         private static $arr = null;
 
+        // Called by the framework prior to any of the logic that determines the page to render.
         public static function load()
         {
-            self::$arr = array();
+            self::$arr = [];
 
             try
             {
@@ -60,6 +67,7 @@
             }
         }
 
+        // Called by the framework right before the output buffer is flushed in a normal request that hasn't tampered with the output buffer in some way.
         public static function finalize()
         {
             setcookie(

@@ -1,9 +1,13 @@
 <?php
+    /*
+        Post.php
+
+        A utility class for handling POST requests and getting the information from them.
+    */
+
     class Post
     {
-        //
-        //  Check to see if the specified post data exists
-        //
+        // Returns a boolean on whether or not a POST request has all the supplied arguments as keys of the $_POST variable.
         public static function has()
         {
             if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] != "POST")
@@ -21,6 +25,7 @@
             return false;
         }
 
+        // Returns the size of the POST request made to the server.
         public static function size()
         {
             $intSize = -1;
@@ -31,6 +36,7 @@
             return $intSize;
         }
 
+        // Returns the value of a POST field or otherwise return null if it doesn't exist.
         public static function value($strField)
         {
             if (isset($_POST[$strField]))

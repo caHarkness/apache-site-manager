@@ -34,7 +34,12 @@ project-index () {
     HTTP_PORT_CRAWL=8000
 
     # Index all the sites in the live folder
-    for p in live/*
+    # for p in live/*
+    _IFS=$IFS
+    IFS=$'\n'
+    LISTING=`find live/* -maxdepth 0 -type d | sort`
+
+    for p in $LISTING
     do
         if [[ -d $p ]]
         then
@@ -98,8 +103,14 @@ project-index () {
     done
 
     # Index all the sites in the dev folder
-    for p in dev/*
+    # for p in dev/*
+    IFS=$'\n'
+    LISTING=`find dev/* -maxdepth 0 -type d | sort`
+    
+    for p in $LISTING
     do
+        echo "FOUND: $p"
+
         if [[ -d $p ]]
         then
             PDIR=$(basename $(dirname $p))
@@ -152,10 +163,11 @@ project-index () {
             fi
         fi
     done
+    IFS=$_IFS
 
     PAGE_DATA=$(<sh/res/APPS.md)
 
-    find . | grep -e "APP_LINK$" > sh/gen/sites.tmp
+    find . | grep -e "APP_LINK$" | sort > sh/gen/sites.tmp
 
     DEV_APPS=""
     LIVE_APPS=""
@@ -229,7 +241,45 @@ project-rebase () {
         return
     fi
 
-    cp -rfva pre/base/* dev/$1
+    cp -rfva shared/base/* dev/$1
+
+    if [[ -e dev/$1/flags/BUILD_ON_REBASE ]]
+    then
+        project-build $1
+    fi
+}
+
+project-build () {
+    cd $WEB_ROOT
+
+    if [[ -z $1 ]];
+    then
+        for p in dev/*
+        do
+            if [[ -d $p ]]
+            then
+                PROJECT_NAME=$(basename $p)
+                project-build $PROJECT_NAME
+            fi
+        done
+        return
+    fi
+
+    if [[ ! -e dev/$1 ]];
+    then
+        echo "Project $1 does not exist"
+        return
+    fi
+
+    project-flags "dev" $1
+
+    if [[ -e dev/$1/build.sh ]]
+    then
+        RETURN_DIR=$(pwd)
+        cd dev/$1
+        source build.sh
+        cd $RETURN_DIR
+    fi
 }
 
 project-create () {
@@ -247,6 +297,6 @@ project-create () {
         return
     fi
 
-    cp -rfva pre/template dev/$1
+    cp -rfva shared/template dev/$1
     project-rebase $1
 }

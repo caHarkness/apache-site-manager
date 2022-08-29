@@ -5,6 +5,9 @@ deploy () {
 
     if [[ -z $1 ]]
     then
+        # echo "Deploying all is momentarily disabled, please specify a project name"
+        # return
+
         # Copy projects from dev to live
         rm -rfv live
         cp -rfva dev live
@@ -27,6 +30,8 @@ deploy () {
             return
         fi
 
+        project-build $PNAME
+
         rm -rfv live/$PNAME
         cp -rfva dev/$PNAME live
     fi
@@ -34,7 +39,8 @@ deploy () {
     apache-initialize
     project-index
     apache-install-sites
-    apache-restart
+    #apache-restart
+    apache-reload
 
     user-return
     permissions-update

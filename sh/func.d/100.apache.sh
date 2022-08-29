@@ -59,3 +59,7 @@ apache-install-sites () {
 apache-restart () {
     service apache2 restart
 }
+
+apache-reload () {
+    service apache2 reload
+}

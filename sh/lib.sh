@@ -8,11 +8,13 @@ fi
 
 for s in conf.d/*.sh
 do
+    echo "Found $s"
     source $s
 done
 
 for s in func.d/*.sh
 do
+    echo "Found $s"
     source $s
 done
 

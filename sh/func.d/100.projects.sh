@@ -10,7 +10,7 @@ project-flags () {
     then
         echo "$PDIR/$PNAME flags:"
 
-        for f in $p/flags/[A-Z0-9_]*
+        for f in $PDIR/flags/[A-Z0-9_]*
         do
             FLAG_NAME=$(basename $f)
             FLAG_VALUE=$(cat $f)

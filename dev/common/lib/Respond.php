@@ -26,8 +26,6 @@
             header("Content-Type: text/plain");
             echo "{$intCode} {$strReason}";
 
-            Logger::log("Status {$intCode} {$strReason} returned.");
-
             ob_end_flush();
             exit;
         }
@@ -50,7 +48,6 @@
             $strExceptionMessage    = $x->getMessage();
 
             echo $strFormatted;
-            Logger::log("Exception thrown: $strExceptionMessage $strNotFormatted");
 
             ob_end_flush();
             exit;

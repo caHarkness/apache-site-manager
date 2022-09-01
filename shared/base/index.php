@@ -84,23 +84,12 @@
             self::loadLibraries();
             self::loadFileConstants();
 
-            self::$strInstanceId    = Text::generateGuid();
-            self::$varStopwatch     = new Stopwatch();
-
-            define("APP_INSTANCE_ID", self::$strInstanceId);
-
             // Start the output buffer process and clean it.
             ob_start();
             ob_clean();
 
             // Load cookies into a static field. We can't modify cookies directly until we are ready to send them along with the output buffer, so the solution to this is to modify a static field of the Cookies class.
             Cookies::load();
-
-            if (Post::size() > -1)
-            {
-                $intInputSize = number_format(Post::size(), 0);
-                Logger::log("POST request of {$intInputSize} bytes received.");
-            }
         }
 
         // Called after the output buffer is finished being written to and when the application is ready to flush the contents to the client.
@@ -108,12 +97,6 @@
         {
             // Finalize the cookies for sending as header information.
             Cookies::finalize();
-
-            $intOutputSize  = number_format(strlen(ob_get_contents()), 0);
-
-            Logger::log(
-                Text::join(
-                    "View completed in ", Application::$varStopwatch->measure(), " with $intOutputSize bytes."));
 
             // Send the contents of the output buffer to the client requesting the page or resource. Exit after doing so!
             ob_end_flush();
